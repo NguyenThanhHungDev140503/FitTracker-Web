@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   Play,
@@ -34,6 +37,9 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editName, setEditName] = useState(exercise.name);
 
   // Update exercise mutation
   const updateExerciseMutation = useMutation({
@@ -201,10 +207,8 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                const newName = prompt("Tên bài tập:", exercise.name);
-                if (newName) {
-                  updateExerciseMutation.mutate({ name: newName });
-                }
+                setEditName(exercise.name);
+                setIsEditDialogOpen(true);
               }}
             >
               <Edit className="w-4 h-4" />
@@ -214,9 +218,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm("Xóa bài tập này?")) {
-                  deleteExerciseMutation.mutate();
-                }
+                setIsDeleteDialogOpen(true);
               }}
             >
               <Trash className="w-4 h-4" />
@@ -339,6 +341,65 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
           </div>
         </CardContent>
       )}
+      
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Chỉnh sửa bài tập</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="exercise-name">Tên bài tập</Label>
+              <Input
+                id="exercise-name"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Nhập tên bài tập"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button
+              onClick={() => {
+                if (editName.trim()) {
+                  updateExerciseMutation.mutate({ name: editName });
+                  setIsEditDialogOpen(false);
+                }
+              }}
+            >
+              Lưu
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
+          </DialogHeader>
+          <p>Bạn có chắc chắn muốn xóa bài tập "{exercise.name}"?</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                deleteExerciseMutation.mutate();
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
