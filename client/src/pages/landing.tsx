@@ -27,8 +27,8 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-primary to-indigo-700 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="w-full min-h-screen bg-gradient-to-br from-primary via-primary to-indigo-700 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
         {/* Logo and Title */}
         <div className="text-center text-white">
           <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

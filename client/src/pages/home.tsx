@@ -145,7 +145,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl">
+    <div className="w-full bg-white min-h-screen">
       <Header />
       
       {activeTab === 'calendar' && (
