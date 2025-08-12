@@ -19,7 +19,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
-          <Route path="/workout" component={Workout} />
+          <Route path="/workout/:id" component={Workout} />
         </>
       )}
       <Route component={NotFound} />

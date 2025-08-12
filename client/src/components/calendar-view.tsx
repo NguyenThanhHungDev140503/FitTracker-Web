@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Dumbbell } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
 import { vi } from "date-fns/locale";
+import { useLocation } from "wouter";
+import { WorkoutForm } from "@/components/workout-form";
 import type { Workout } from "@shared/schema";
 
 interface CalendarViewProps {
@@ -14,6 +16,8 @@ interface CalendarViewProps {
 export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showWorkoutForm, setShowWorkoutForm] = useState(false);
+  const [, setLocation] = useLocation();
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -120,33 +124,78 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
         </div>
       </div>
 
-      {/* Quick Add Button */}
-      <Button
-        onClick={onAddWorkout}
-        className="fixed bottom-20 right-4 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-shadow"
-        size="sm"
-      >
-        <Plus className="w-6 h-6" />
-      </Button>
-
-      {/* Workout Legend */}
-      <div className="mx-4 mt-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <h3 className="font-semibold text-dark mb-3">Loại bài tập</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-3">
-            <div className="w-3 h-3 bg-primary rounded-full"></div>
-            <span className="text-sm text-gray-600">Vai/Lưng</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-3 h-3 bg-secondary rounded-full"></div>
-            <span className="text-sm text-gray-600">Ngực/Tay</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-3 h-3 bg-accent rounded-full"></div>
-            <span className="text-sm text-gray-600">Chân/Mông</span>
-          </div>
+      {/* Selected Date Workouts */}
+      <div className="mx-4 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-dark">
+            {format(selectedDate, "EEEE, dd MMMM", { locale: vi })}
+          </h3>
+          <Button
+            onClick={() => setShowWorkoutForm(true)}
+            size="sm"
+            variant="outline"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Thêm buổi tập
+          </Button>
         </div>
+        
+        {getWorkoutsForDate(selectedDate).length > 0 ? (
+          <div className="space-y-3">
+            {getWorkoutsForDate(selectedDate).map((workout) => (
+              <button
+                key={workout.id}
+                onClick={() => setLocation(`/workout/${workout.id}`)}
+                className="w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-left"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: workout.color }}
+                      />
+                      <h4 className="font-semibold text-dark">{workout.name}</h4>
+                    </div>
+                    {workout.description && (
+                      <p className="text-sm text-gray-600 mt-1">{workout.description}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {workout.completed && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                        Hoàn thành
+                      </span>
+                    )}
+                    <Dumbbell className="w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 text-center">
+            <Dumbbell className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+            <p className="text-gray-600 mb-4">Chưa có buổi tập nào</p>
+            <Button
+              onClick={() => setShowWorkoutForm(true)}
+              className="w-full"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Tạo buổi tập mới
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Workout Form */}
+      {showWorkoutForm && (
+        <WorkoutForm
+          selectedDate={selectedDate}
+          onClose={() => setShowWorkoutForm(false)}
+          onSuccess={() => setShowWorkoutForm(false)}
+        />
+      )}
     </div>
   );
 }
