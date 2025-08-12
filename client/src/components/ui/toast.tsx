@@ -42,7 +42,7 @@ const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
->(({ className, variant, children, ...props }, ref) => {
+>(({ className, variant, children, onOpenChange, ...props }, ref) => {
   const [progress, setProgress] = React.useState(100)
   
   React.useEffect(() => {
@@ -55,6 +55,10 @@ const Toast = React.forwardRef<
         const newProgress = prev - decrement
         if (newProgress <= 0) {
           clearInterval(timer)
+          // Auto-close the toast when timer expires
+          if (onOpenChange) {
+            onOpenChange(false)
+          }
           return 0
         }
         return newProgress
@@ -62,12 +66,13 @@ const Toast = React.forwardRef<
     }, interval)
     
     return () => clearInterval(timer)
-  }, [])
+  }, [onOpenChange])
   
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), "relative overflow-visible", className)}
+      onOpenChange={onOpenChange}
       {...props}
     >
       {children}
