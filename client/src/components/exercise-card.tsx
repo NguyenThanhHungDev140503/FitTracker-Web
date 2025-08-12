@@ -186,13 +186,22 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
 
   const progressPercentage = (completedSets / exercise.sets) * 100;
 
-  // Function to detect and format URLs in text
-  const formatDescription = (text: string | null) => {
+  // Function to detect and format URLs in text with truncation
+  const formatDescription = (text: string | null, expanded: boolean = false) => {
     if (!text) return null;
+    
+    // Truncate text if not expanded
+    let displayText = text;
+    if (!expanded) {
+      const words = text.split(' ');
+      if (words.length > 10) {
+        displayText = words.slice(0, 10).join(' ') + '...';
+      }
+    }
     
     // URL detection regex
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
+    const parts = displayText.split(urlRegex);
     
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
@@ -231,7 +240,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               )}
             </div>
             {exercise.description && (
-              <p className="text-sm text-gray-600 mt-1">{formatDescription(exercise.description)}</p>
+              <p className="text-sm text-gray-600 mt-1">{formatDescription(exercise.description, isExpanded)}</p>
             )}
             <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
               <span className="flex items-center">
