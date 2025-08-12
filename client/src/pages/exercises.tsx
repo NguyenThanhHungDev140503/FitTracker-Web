@@ -19,7 +19,7 @@ interface ExerciseWithWorkout extends Exercise {
 export default function Exercises() {
   const [, setLocation] = useLocation();
   const [exercisesWithWorkouts, setExercisesWithWorkouts] = useState<ExerciseWithWorkout[]>([]);
-  const [exercisesByCategory, setExercisesByCategory] = useState<Record<string, Exercise[]>({});
+  const [exercisesByCategory, setExercisesByCategory] = useState<{ [key: string]: Exercise[] }>({});
   
   const handleTabChange = (tab: string) => {
     if (tab === 'calendar') {
