@@ -145,7 +145,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-screen bg-white min-h-screen overflow-x-hidden">
+    <div className="bg-white min-h-screen" style={{ width: '100vw', margin: 0, padding: 0, maxWidth: '100vw', overflow: 'hidden' }}>
       <Header />
       
       {activeTab === 'calendar' && (

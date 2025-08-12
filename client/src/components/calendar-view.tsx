@@ -51,7 +51,7 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
   const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen pb-24">
+    <div className="w-screen bg-gray-50 min-h-screen pb-24" style={{ width: '100vw', margin: 0, padding: 0 }}>
       <div className="px-4 pt-4">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-dark">
