@@ -105,6 +105,14 @@
   #root {
     width: 100%;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Remove any default margins/padding */
+  .container {
+    max-width: none !important;
+    width: 100% !important;
   }
 }
 
@@ -112,4 +120,36 @@
   .text-dark {
     color: var(--dark);
   }
+  
+  /* Force full width on all main containers */
+  main, section, article, div[role="main"] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Responsive design for all screen sizes */
+@media screen and (min-width: 640px) {
+  /* For tablets and desktop, ensure full width */
+  body > div,
+  #root > div {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Override any potential max-width constraints */
+* {
+  max-width: none;
+}
+
+[class*="container"] {
+  max-width: 100% !important;
+}
+
+/* Ensure calendar and other components use full width */
+.calendar-container,
+.workout-container {
+  width: 100% !important;
+  max-width: 100% !important;
 }

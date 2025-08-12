@@ -102,7 +102,7 @@ export function WorkoutView({ workoutId, selectedDate, onBack }: WorkoutViewProp
   }
 
   return (
-    <div className="p-4 pb-24">
+    <div className="w-full p-4 pb-24">
       {/* Workout Header */}
       <div className="flex items-center mb-6">
         <Button variant="ghost" size="sm" onClick={onBack} className="p-2 -ml-2 mr-3">

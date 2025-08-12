@@ -164,21 +164,21 @@ export default function Home() {
       )}
 
       {activeTab === 'workouts' && (
-        <div className="p-4 pb-24">
+        <div className="w-full p-4 pb-24">
           <h2 className="text-2xl font-bold text-dark mb-6">Bài tập</h2>
           <p className="text-gray-500 text-center py-8">Tính năng đang phát triển</p>
         </div>
       )}
 
       {activeTab === 'progress' && (
-        <div className="p-4 pb-24">
+        <div className="w-full p-4 pb-24">
           <h2 className="text-2xl font-bold text-dark mb-6">Tiến độ</h2>
           <p className="text-gray-500 text-center py-8">Tính năng đang phát triển</p>
         </div>
       )}
 
       {activeTab === 'profile' && (
-        <div className="p-4 pb-24">
+        <div className="w-full p-4 pb-24">
           <h2 className="text-2xl font-bold text-dark mb-6">Hồ sơ</h2>
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center space-x-4 mb-6">

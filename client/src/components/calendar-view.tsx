@@ -51,7 +51,7 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
   const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
   return (
-    <div className="p-4 pb-24">
+    <div className="w-full p-4 pb-24">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-dark">
           {format(currentDate, 'MMMM yyyy', { locale: vi })}
