@@ -213,7 +213,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 underline"
+              className="text-blue-600 hover:text-blue-800 underline break-all"
               onClick={(e) => e.stopPropagation()}
               title={fullUrl}
             >
@@ -226,7 +226,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 underline"
+              className="text-blue-600 hover:text-blue-800 underline break-all"
               onClick={(e) => e.stopPropagation()}
               title={fullUrl}
             >
@@ -252,7 +252,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
+            className="text-blue-600 hover:text-blue-800 underline break-all"
             onClick={(e) => e.stopPropagation()}
           >
             {part}
@@ -281,7 +281,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               )}
             </div>
             {exercise.description && (
-              <p className="text-sm text-gray-600 mt-1">{formatDescription(exercise.description, isExpanded)}</p>
+              <p className="text-sm text-gray-600 mt-1 break-all overflow-hidden">{formatDescription(exercise.description, isExpanded)}</p>
             )}
             <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
               <span className="flex items-center">
