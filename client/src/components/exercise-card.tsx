@@ -90,11 +90,32 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
           if (prev <= 1) {
             setIsTimerRunning(false);
             setIsResting(false);
-            // Play notification sound
-            const audio = new Audio('data:audio/wav;base64,UklGRhIAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAADu/u7+');
-            audio.play().catch(() => {});
+            // Play notification sound - a clear bell/beep sound
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            
+            // Create three beeps for better notification
+            for (let i = 0; i < 3; i++) {
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+              
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+              
+              oscillator.frequency.value = 800; // Frequency in Hz
+              oscillator.type = 'sine';
+              
+              // Fade in and out for smoother sound
+              gainNode.gain.setValueAtTime(0, audioContext.currentTime + (i * 0.3));
+              gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.01);
+              gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.15);
+              gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + (i * 0.3) + 0.2);
+              
+              oscillator.start(audioContext.currentTime + (i * 0.3));
+              oscillator.stop(audioContext.currentTime + (i * 0.3) + 0.2);
+            }
+            
             toast({
-              title: "Hết thời gian nghỉ!",
+              title: "⏰ Hết thời gian nghỉ!",
               description: "Bắt đầu hiệp tiếp theo",
             });
             return exercise.restDuration;
