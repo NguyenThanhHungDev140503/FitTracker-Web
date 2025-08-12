@@ -35,6 +35,7 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
   const [isResting, setIsResting] = useState(false);
   const [restTimeLeft, setRestTimeLeft] = useState(exercise.restDuration);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [isFinalRest, setIsFinalRest] = useState(false); // Track if this is the final rest period
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -92,34 +93,46 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
           if (prev <= 1) {
             setIsTimerRunning(false);
             setIsResting(false);
-            // Play notification sound - a clear bell/beep sound
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
             
-            // Create three beeps for better notification
-            for (let i = 0; i < 3; i++) {
-              const oscillator = audioContext.createOscillator();
-              const gainNode = audioContext.createGain();
+            // Check if this was the final rest period
+            if (isFinalRest) {
+              // Mark exercise as complete after final rest
+              updateExerciseMutation.mutate({ completed: true });
+              toast({
+                title: "✅ Hoàn thành!",
+                description: `Đã hoàn thành bài tập ${exercise.name} sau thời gian nghỉ cuối cùng`,
+              });
+              setIsFinalRest(false);
+            } else {
+              // Play notification sound - a clear bell/beep sound
+              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
               
-              oscillator.connect(gainNode);
-              gainNode.connect(audioContext.destination);
+              // Create three beeps for better notification
+              for (let i = 0; i < 3; i++) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800; // Frequency in Hz
+                oscillator.type = 'sine';
+                
+                // Fade in and out for smoother sound
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime + (i * 0.3));
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.01);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.15);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + (i * 0.3) + 0.2);
+                
+                oscillator.start(audioContext.currentTime + (i * 0.3));
+                oscillator.stop(audioContext.currentTime + (i * 0.3) + 0.2);
+              }
               
-              oscillator.frequency.value = 800; // Frequency in Hz
-              oscillator.type = 'sine';
-              
-              // Fade in and out for smoother sound
-              gainNode.gain.setValueAtTime(0, audioContext.currentTime + (i * 0.3));
-              gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.01);
-              gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + (i * 0.3) + 0.15);
-              gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + (i * 0.3) + 0.2);
-              
-              oscillator.start(audioContext.currentTime + (i * 0.3));
-              oscillator.stop(audioContext.currentTime + (i * 0.3) + 0.2);
+              toast({
+                title: "⏰ Hết thời gian nghỉ!",
+                description: "Bắt đầu hiệp tiếp theo",
+              });
             }
-            
-            toast({
-              title: "⏰ Hết thời gian nghỉ!",
-              description: "Bắt đầu hiệp tiếp theo",
-            });
             return exercise.restDuration;
           }
           return prev - 1;
@@ -136,7 +149,7 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
         clearInterval(intervalRef.current);
       }
     };
-  }, [isTimerRunning, restTimeLeft, exercise.restDuration]);
+  }, [isTimerRunning, restTimeLeft, exercise.restDuration, isFinalRest, exercise.name]);
 
   const handleStartRest = () => {
     setIsResting(true);
@@ -161,13 +174,15 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
     if (completedSets < exercise.sets) {
       setCompletedSets(completedSets + 1);
       if (completedSets + 1 < exercise.sets) {
+        // Not the last set - start normal rest
         handleStartRest();
       } else if (completedSets + 1 === exercise.sets) {
-        // All sets completed
-        updateExerciseMutation.mutate({ completed: true });
+        // Last set completed - start final rest period
+        setIsFinalRest(true);
+        handleStartRest();
         toast({
-          title: "Hoàn thành!",
-          description: `Đã hoàn thành bài tập ${exercise.name}`,
+          title: "💪 Hiệp cuối cùng hoàn thành!",
+          description: `Nghỉ ngơi lần cuối trước khi hoàn thành bài tập`,
         });
       }
     }
