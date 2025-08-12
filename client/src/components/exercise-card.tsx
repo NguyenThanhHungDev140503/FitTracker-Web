@@ -190,18 +190,60 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   const formatDescription = (text: string | null, expanded: boolean = false) => {
     if (!text) return null;
     
-    // Truncate text if not expanded
-    let displayText = text;
-    if (!expanded) {
-      const words = text.split(' ');
-      if (words.length > 10) {
-        displayText = words.slice(0, 10).join(' ') + '...';
-      }
-    }
+    // Maximum characters to show when collapsed
+    const maxChars = 50;
     
     // URL detection regex
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = displayText.split(urlRegex);
+    
+    // If not expanded and text is too long, truncate it
+    if (!expanded && text.length > maxChars) {
+      const truncated = text.substring(0, maxChars);
+      const parts = truncated.split(urlRegex);
+      
+      const elements = parts.map((part, index) => {
+        if (part.match(urlRegex)) {
+          // For URLs, show domain only when truncated
+          try {
+            const url = new URL(part);
+            return (
+              <a
+                key={index}
+                href={part}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+                onClick={(e) => e.stopPropagation()}
+                title={part}
+              >
+                {url.hostname}
+              </a>
+            );
+          } catch {
+            // If URL parsing fails, show truncated URL
+            return (
+              <a
+                key={index}
+                href={part}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {part.substring(0, 30)}...
+              </a>
+            );
+          }
+        }
+        return part;
+      });
+      
+      elements.push('...');
+      return elements;
+    }
+    
+    // Full text when expanded
+    const parts = text.split(urlRegex);
     
     return parts.map((part, index) => {
       if (part.match(urlRegex)) {
