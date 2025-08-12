@@ -42,13 +42,43 @@ const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
->(({ className, variant, ...props }, ref) => {
+>(({ className, variant, children, ...props }, ref) => {
+  const [progress, setProgress] = React.useState(100)
+  
+  React.useEffect(() => {
+    const duration = 5000 // 5 seconds
+    const interval = 50 // Update every 50ms
+    const decrement = (100 * interval) / duration
+    
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        const newProgress = prev - decrement
+        if (newProgress <= 0) {
+          clearInterval(timer)
+          return 0
+        }
+        return newProgress
+      })
+    }, interval)
+    
+    return () => clearInterval(timer)
+  }, [])
+  
   return (
     <ToastPrimitives.Root
       ref={ref}
-      className={cn(toastVariants({ variant }), className)}
+      className={cn(toastVariants({ variant }), "relative overflow-visible", className)}
       {...props}
-    />
+    >
+      {children}
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/10 dark:bg-white/10">
+        <div 
+          className="h-full bg-green-500 transition-all duration-50"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </ToastPrimitives.Root>
   )
 })
 Toast.displayName = ToastPrimitives.Root.displayName
