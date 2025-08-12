@@ -198,48 +198,45 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
     
     // If not expanded and text is too long, truncate it
     if (!expanded && text.length > maxChars) {
-      const truncated = text.substring(0, maxChars);
-      const parts = truncated.split(urlRegex);
+      // First find all URLs in the original text
+      const matches = text.match(urlRegex);
+      const fullUrls = matches || [];
       
-      const elements = parts.map((part, index) => {
-        if (part.match(urlRegex)) {
-          // For URLs, show domain only when truncated
-          try {
-            const url = new URL(part);
-            return (
-              <a
-                key={index}
-                href={part}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
-                onClick={(e) => e.stopPropagation()}
-                title={part}
-              >
-                {url.hostname}
-              </a>
-            );
-          } catch {
-            // If URL parsing fails, show truncated URL
-            return (
-              <a
-                key={index}
-                href={part}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {part.substring(0, 30)}...
-              </a>
-            );
-          }
+      // Check if text starts with URL
+      if (text.match(/^https?:\/\//)) {
+        // If it's just a URL, show domain name only
+        try {
+          const url = new URL(fullUrls[0]);
+          return (
+            <a
+              href={fullUrls[0]}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+              onClick={(e) => e.stopPropagation()}
+              title={fullUrls[0]}
+            >
+              {url.hostname}...
+            </a>
+          );
+        } catch {
+          return (
+            <a
+              href={fullUrls[0]}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {text.substring(0, 30)}...
+            </a>
+          );
         }
-        return part;
-      });
-      
-      elements.push('...');
-      return elements;
+      } else {
+        // Mixed text and URLs - truncate text but preserve first URL if present
+        const truncated = text.substring(0, maxChars) + '...';
+        return truncated;
+      }
     }
     
     // Full text when expanded
