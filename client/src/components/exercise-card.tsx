@@ -39,6 +39,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState(exercise.name);
+  const [editDescription, setEditDescription] = useState(exercise.description || '');
   const [editSets, setEditSets] = useState(exercise.sets);
   const [editReps, setEditReps] = useState(exercise.reps);
   const [editRestDuration, setEditRestDuration] = useState(exercise.restDuration);
@@ -223,6 +224,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 setEditName(exercise.name);
+                setEditDescription(exercise.description || '');
                 setEditSets(exercise.sets);
                 setEditReps(exercise.reps);
                 setEditRestDuration(exercise.restDuration);
@@ -365,6 +367,15 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
                 placeholder="Nhập tên bài tập"
               />
             </div>
+            <div>
+              <Label htmlFor="exercise-description">Mô tả</Label>
+              <Input
+                id="exercise-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder="Nhập mô tả bài tập (tùy chọn)"
+              />
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <Label htmlFor="exercise-sets">Số hiệp</Label>
@@ -408,6 +419,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
                 if (editName.trim() && editSets > 0 && editReps > 0 && editRestDuration >= 0) {
                   updateExerciseMutation.mutate({ 
                     name: editName,
+                    description: editDescription.trim() || null,
                     sets: editSets,
                     reps: editReps,
                     restDuration: editRestDuration
