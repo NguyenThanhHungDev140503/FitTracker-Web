@@ -30,8 +30,7 @@ interface ExerciseCardProps {
 
 export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   const { toast } = useToast();
-  const [currentSet, setCurrentSet] = useState(1);
-  const [currentReps, setCurrentReps] = useState(0);
+  const [completedSets, setCompletedSets] = useState(0);
   const [isResting, setIsResting] = useState(false);
   const [restTimeLeft, setRestTimeLeft] = useState(exercise.restDuration);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -135,33 +134,25 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
     setRestTimeLeft(exercise.restDuration);
   };
 
-  const handleCompleteSet = () => {
-    if (currentSet < exercise.sets) {
-      setCurrentSet(currentSet + 1);
-      setCurrentReps(0);
-      handleStartRest();
-    } else {
-      // All sets completed
-      updateExerciseMutation.mutate({ completed: true });
-      toast({
-        title: "Hoàn thành!",
-        description: `Đã hoàn thành bài tập ${exercise.name}`,
-      });
-    }
-  };
-
-  const incrementReps = () => {
-    if (currentReps < exercise.reps) {
-      setCurrentReps(currentReps + 1);
-      if (currentReps + 1 === exercise.reps) {
-        handleCompleteSet();
+  const incrementSets = () => {
+    if (completedSets < exercise.sets) {
+      setCompletedSets(completedSets + 1);
+      if (completedSets + 1 < exercise.sets) {
+        handleStartRest();
+      } else if (completedSets + 1 === exercise.sets) {
+        // All sets completed
+        updateExerciseMutation.mutate({ completed: true });
+        toast({
+          title: "Hoàn thành!",
+          description: `Đã hoàn thành bài tập ${exercise.name}`,
+        });
       }
     }
   };
 
-  const decrementReps = () => {
-    if (currentReps > 0) {
-      setCurrentReps(currentReps - 1);
+  const decrementSets = () => {
+    if (completedSets > 0) {
+      setCompletedSets(completedSets - 1);
     }
   };
 
@@ -171,7 +162,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const progressPercentage = (currentReps / exercise.reps) * 100;
+  const progressPercentage = (completedSets / exercise.sets) * 100;
 
   return (
     <Card className={`border-0 shadow-sm ${exercise.completed ? 'opacity-60' : ''}`}>
@@ -235,37 +226,37 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
 
       {(isExpanded || isResting) && !exercise.completed && (
         <CardContent className="space-y-4">
-          {/* Current Set Progress */}
+          {/* Set Progress */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-medium">
-                Hiệp {currentSet}/{exercise.sets}
+                Tiến độ: {completedSets}/{exercise.sets} hiệp
               </span>
               <span className="text-sm text-gray-600">
-                {currentReps}/{exercise.reps} lần
+                Mỗi hiệp {exercise.reps} lần
               </span>
             </div>
             <Progress value={progressPercentage} className="h-2 mb-3" />
             
-            {/* Rep Counter */}
+            {/* Set Counter */}
             <div className="flex items-center justify-center space-x-4">
               <Button
                 variant="outline"
                 size="icon"
-                onClick={decrementReps}
-                disabled={currentReps === 0 || isResting}
+                onClick={decrementSets}
+                disabled={completedSets === 0 || isResting}
               >
                 <Minus className="w-4 h-4" />
               </Button>
               <div className="text-center">
-                <div className="text-3xl font-bold">{currentReps}</div>
-                <div className="text-xs text-gray-600">lần</div>
+                <div className="text-3xl font-bold">{completedSets}</div>
+                <div className="text-xs text-gray-600">hiệp đã hoàn thành</div>
               </div>
               <Button
                 variant="outline"
                 size="icon"
-                onClick={incrementReps}
-                disabled={currentReps >= exercise.reps || isResting}
+                onClick={incrementSets}
+                disabled={completedSets >= exercise.sets || isResting}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -324,27 +315,16 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex space-x-2">
-            {!isResting && currentSet === exercise.sets && currentReps === exercise.reps && (
-              <Button
-                className="flex-1"
-                onClick={() => updateExerciseMutation.mutate({ completed: true })}
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Hoàn thành bài tập
-              </Button>
-            )}
-            {!isResting && currentReps < exercise.reps && (
-              <Button
-                className="flex-1"
-                variant="outline"
-                onClick={handleCompleteSet}
-              >
-                Hoàn thành hiệp {currentSet}
-              </Button>
-            )}
-          </div>
+          {/* Complete Exercise Button */}
+          {!isResting && completedSets === exercise.sets && (
+            <Button
+              className="w-full"
+              onClick={() => updateExerciseMutation.mutate({ completed: true })}
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Hoàn thành bài tập
+            </Button>
+          )}
         </CardContent>
       )}
       
