@@ -130,7 +130,7 @@ export default function WorkoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="bg-primary text-white sticky top-0 z-40">
+      <div className={`${workout.completed ? 'bg-green-500' : 'bg-primary'} text-white sticky top-0 z-40`}>
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center space-x-3">
             <Button
@@ -141,8 +141,16 @@ export default function WorkoutPage() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-xl font-bold">{workout.name}</h1>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold">{workout.name}</h1>
+                {workout.completed && (
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    <Check className="w-3 h-3 mr-1" />
+                    Hoàn thành
+                  </Badge>
+                )}
+              </div>
               {workout.description && (
                 <p className="text-sm text-white/80">{workout.description}</p>
               )}
@@ -180,32 +188,52 @@ export default function WorkoutPage() {
         {/* Progress Bar */}
         <div className="px-4 pb-4">
           <div className="flex items-center justify-between text-sm mb-2">
-            <span>Tiến độ</span>
+            <span>{workout.completed ? '✓ Hoàn thành' : 'Tiến độ'}</span>
             <span>{completedExercises}/{totalExercises} bài tập</span>
           </div>
-          <Progress value={progressPercentage} className="h-2 bg-white/20" />
+          <Progress 
+            value={progressPercentage} 
+            className={`h-2 ${workout.completed ? 'bg-green-300/30' : 'bg-white/20'}`} 
+          />
         </div>
       </div>
 
+      {/* Completion Message */}
+      {workout.completed && (
+        <div className="px-4 py-4">
+          <Card className="border-green-200 bg-green-50 shadow-sm">
+            <CardContent className="p-4 text-center">
+              <div className="flex justify-center mb-3">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold text-green-800 mb-1">Xuất sắc!</h3>
+              <p className="text-sm text-green-600">Bạn đã hoàn thành buổi tập này</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4 px-4 py-4">
-        <Card className="border-0 shadow-sm">
+        <Card className={`border-0 shadow-sm ${workout.completed ? 'bg-green-50' : ''}`}>
           <CardContent className="p-4 text-center">
-            <Target className="w-6 h-6 mx-auto mb-2 text-primary" />
+            <Target className={`w-6 h-6 mx-auto mb-2 ${workout.completed ? 'text-green-600' : 'text-primary'}`} />
             <p className="text-2xl font-bold">{totalExercises}</p>
             <p className="text-xs text-gray-600">Tổng bài tập</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className={`border-0 shadow-sm ${workout.completed ? 'bg-green-50' : ''}`}>
           <CardContent className="p-4 text-center">
             <Check className="w-6 h-6 mx-auto mb-2 text-green-500" />
-            <p className="text-2xl font-bold">{completedExercises}</p>
+            <p className="text-2xl font-bold text-green-600">{completedExercises}</p>
             <p className="text-xs text-gray-600">Hoàn thành</p>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card className={`border-0 shadow-sm ${workout.completed ? 'bg-green-50' : ''}`}>
           <CardContent className="p-4 text-center">
-            <Timer className="w-6 h-6 mx-auto mb-2 text-blue-500" />
+            <Timer className={`w-6 h-6 mx-auto mb-2 ${workout.completed ? 'text-green-600' : 'text-blue-500'}`} />
             <p className="text-2xl font-bold">
               {exercises.reduce((acc, e) => acc + e.sets * e.restDuration, 0) / 60}
             </p>
@@ -242,6 +270,7 @@ export default function WorkoutPage() {
                 <ExerciseCard
                   key={exercise.id}
                   exercise={exercise}
+                  workoutCompleted={workout.completed || false}
                   onUpdate={() => {
                     queryClient.invalidateQueries({ 
                       queryKey: [`/api/workouts/${params?.id}/exercises`] 

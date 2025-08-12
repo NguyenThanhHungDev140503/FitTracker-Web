@@ -25,10 +25,11 @@ import type { Exercise } from "@shared/schema";
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  workoutCompleted?: boolean;
   onUpdate: () => void;
 }
 
-export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: ExerciseCardProps) {
   const { toast } = useToast();
   const [completedSets, setCompletedSets] = useState(0);
   const [isResting, setIsResting] = useState(false);
@@ -264,7 +265,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   };
 
   return (
-    <Card className={`border-0 shadow-sm ${exercise.completed ? 'opacity-60' : ''}`}>
+    <Card className={`border-0 shadow-sm ${workoutCompleted ? 'bg-green-50 border-green-200' : ''} ${exercise.completed ? 'opacity-60' : ''}`}>
       <CardHeader 
         className="pb-3 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -272,8 +273,8 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-lg">{exercise.name}</h3>
-              {exercise.completed && (
+              <h3 className={`font-semibold text-lg ${workoutCompleted ? 'text-green-700' : ''}`}>{exercise.name}</h3>
+              {(exercise.completed || workoutCompleted) && (
                 <Badge className="text-xs bg-green-500 text-white">
                   <Check className="w-3 h-3 mr-1" />
                   Hoàn thành
@@ -294,37 +295,39 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               </span>
             </div>
           </div>
-          <div className="flex items-center space-x-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditName(exercise.name);
-                setEditDescription(exercise.description || '');
-                setEditSets(exercise.sets);
-                setEditReps(exercise.reps);
-                setEditRestDuration(exercise.restDuration);
-                setIsEditDialogOpen(true);
-              }}
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDeleteDialogOpen(true);
-              }}
-            >
-              <Trash className="w-4 h-4" />
-            </Button>
-          </div>
+          {!workoutCompleted && (
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditName(exercise.name);
+                  setEditDescription(exercise.description || '');
+                  setEditSets(exercise.sets);
+                  setEditReps(exercise.reps);
+                  setEditRestDuration(exercise.restDuration);
+                  setIsEditDialogOpen(true);
+                }}
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsDeleteDialogOpen(true);
+                }}
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </CardHeader>
 
-      {(isExpanded || isResting) && !exercise.completed && (
+      {(isExpanded || isResting) && !exercise.completed && !workoutCompleted && (
         <CardContent className="space-y-4">
           {/* Set Progress */}
           <div className="bg-gray-50 rounded-lg p-4">
