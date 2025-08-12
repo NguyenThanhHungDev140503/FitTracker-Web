@@ -166,6 +166,26 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
           if (prev <= 1) {
             setIsExerciseTimerRunning(false);
             
+            // Automatically increment completed sets
+            if (completedSets < exercise.sets) {
+              const newCompletedSets = completedSets + 1;
+              setCompletedSets(newCompletedSets);
+              
+              if (newCompletedSets < exercise.sets) {
+                // Not the last set - start rest period
+                setIsFinalRest(false);
+                handleStartRest();
+              } else if (newCompletedSets === exercise.sets) {
+                // Last set completed - start final rest period
+                setIsFinalRest(true);
+                handleStartRest();
+                toast({
+                  title: "💪 Hiệp cuối cùng hoàn thành!",
+                  description: `Nghỉ ngơi lần cuối trước khi hoàn thành bài tập`,
+                });
+              }
+            }
+            
             // Play notification sound
             const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
             
@@ -191,8 +211,8 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
             }
             
             toast({
-              title: "🎯 Hoàn thành bài tập!",
-              description: "Thời gian bài tập đã kết thúc",
+              title: "🎯 Hoàn thành 1 hiệp!",
+              description: `Đã hoàn thành ${completedSets + 1}/${exercise.sets} hiệp`,
             });
             
             return exerciseTimerDuration;
@@ -211,7 +231,7 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
         clearInterval(exerciseTimerRef.current);
       }
     };
-  }, [isExerciseTimerRunning, exerciseTimeLeft, exerciseTimerDuration]);
+  }, [isExerciseTimerRunning, exerciseTimeLeft, exerciseTimerDuration, completedSets, exercise.sets]);
 
   const handleStartRest = () => {
     setIsResting(true);
