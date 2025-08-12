@@ -1,14 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Target, Timer, Activity, Calendar, ArrowLeft, Home } from "lucide-react";
+import { Target, Timer, Activity, Calendar } from "lucide-react";
 import { Exercise, Workout } from "@shared/schema";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useState, useEffect } from "react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import { Header } from "@/components/header";
+import { BottomNavigation } from "@/components/bottom-navigation";
 
 // Extended Exercise type with workout info
 interface ExerciseWithWorkout extends Exercise {
@@ -18,7 +19,18 @@ interface ExerciseWithWorkout extends Exercise {
 export default function Exercises() {
   const [, setLocation] = useLocation();
   const [exercisesWithWorkouts, setExercisesWithWorkouts] = useState<ExerciseWithWorkout[]>([]);
-  const [exercisesByCategory, setExercisesByCategory] = useState<Record<string, Exercise[]>>({});
+  const [exercisesByCategory, setExercisesByCategory] = useState<Record<string, Exercise[]>({});
+  
+  const handleTabChange = (tab: string) => {
+    if (tab === 'calendar') {
+      setLocation('/');
+    } else if (tab === 'workouts') {
+      // Already on exercises page
+    } else if (tab === 'progress' || tab === 'profile') {
+      // Navigate back to home for these tabs
+      setLocation('/');
+    }
+  };
 
   // Fetch all exercises
   const { data: exercises = [], isLoading: isLoadingExercises } = useQuery<Exercise[]>({
@@ -87,8 +99,9 @@ export default function Exercises() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="p-4 space-y-4">
+      <div className="bg-white min-h-screen">
+        <Header />
+        <div className="p-4 space-y-4 pb-24">
           <h1 className="text-2xl font-bold">Bài tập</h1>
           <div className="grid gap-4">
             {[1, 2, 3].map((i) => (
@@ -99,14 +112,16 @@ export default function Exercises() {
             ))}
           </div>
         </div>
+        <BottomNavigation activeTab="workouts" onTabChange={handleTabChange} />
       </div>
     );
   }
 
   if (exercises.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="p-4 space-y-4">
+      <div className="bg-white min-h-screen">
+        <Header />
+        <div className="p-4 space-y-4 pb-24">
           <h1 className="text-2xl font-bold">Bài tập</h1>
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
@@ -118,26 +133,17 @@ export default function Exercises() {
             </CardContent>
           </Card>
         </div>
+        <BottomNavigation activeTab="workouts" onTabChange={handleTabChange} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="p-4 space-y-6">
+    <div className="bg-white min-h-screen">
+      <Header />
+      <div className="p-4 space-y-6 pb-24">
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl font-bold">Bài tập</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation('/')}
-              className="flex items-center gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Trang chủ
-            </Button>
-          </div>
+          <h1 className="text-2xl font-bold mb-2">Bài tập</h1>
           <p className="text-sm text-gray-600">
             Tổng cộng: {exercises.length} bài tập
           </p>
@@ -227,6 +233,7 @@ export default function Exercises() {
           </div>
         </div>
       </div>
+      <BottomNavigation activeTab="workouts" onTabChange={handleTabChange} />
     </div>
   );
 }
