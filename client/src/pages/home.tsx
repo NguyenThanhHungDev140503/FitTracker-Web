@@ -15,10 +15,10 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import type { Workout } from "@shared/schema";
+import type { Workout, User } from "@shared/schema";
 
 export default function Home() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const queryClient = useQueryClient();
   

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Plus } from "lucide-react";
 import { WorkoutCard } from "@/components/workout-card";
+import { AddExerciseModal } from "@/components/add-exercise-modal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ interface WorkoutViewProps {
 export function WorkoutView({ workoutId, selectedDate, onBack }: WorkoutViewProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
 
   const { data: workout, isLoading: workoutLoading } = useQuery<Workout>({
     queryKey: ["/api/workouts", workoutId],
@@ -118,9 +120,20 @@ export function WorkoutView({ workoutId, selectedDate, onBack }: WorkoutViewProp
       <div className="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-600">Tiến độ buổi tập</span>
-          <span className="text-sm font-bold text-primary">
-            {completedExercises}/{exercises.length}
-          </span>
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-bold text-primary">
+              {completedExercises}/{exercises.length}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAddExerciseOpen(true)}
+              className="h-7 px-2"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Thêm
+            </Button>
+          </div>
         </div>
         <Progress value={progressPercentage} className="h-2" />
       </div>
@@ -141,7 +154,7 @@ export function WorkoutView({ workoutId, selectedDate, onBack }: WorkoutViewProp
         <div className="mt-6">
           <Button
             onClick={handleCompleteWorkout}
-            disabled={completeWorkoutMutation.isPending || workout.completed}
+            disabled={completeWorkoutMutation.isPending || (workout.completed ?? false)}
             className="w-full bg-secondary hover:bg-emerald-600 text-white py-4 text-lg font-semibold"
           >
             <CheckCircle className="w-5 h-5 mr-2" />
@@ -158,6 +171,15 @@ export function WorkoutView({ workoutId, selectedDate, onBack }: WorkoutViewProp
             Quay lại lịch
           </Button>
         </div>
+      )}
+
+      {/* Add Exercise Modal */}
+      {workoutId && (
+        <AddExerciseModal
+          workoutId={workoutId}
+          isOpen={isAddExerciseOpen}
+          onClose={() => setIsAddExerciseOpen(false)}
+        />
       )}
     </div>
   );

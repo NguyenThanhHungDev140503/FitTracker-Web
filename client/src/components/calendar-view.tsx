@@ -110,7 +110,7 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
                       isSelected ? 'bg-white' : ''
                     }`}
                     style={{
-                      backgroundColor: isSelected ? 'white' : workoutColor
+                      backgroundColor: isSelected ? 'white' : (workoutColor || '#6366F1')
                     }}
                   />
                 )}

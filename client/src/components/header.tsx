@@ -1,9 +1,10 @@
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import type { User } from "@shared/schema";
 
 export function Header() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | undefined };
 
   return (
     <header className="bg-primary text-white p-4 sticky top-0 z-50">
