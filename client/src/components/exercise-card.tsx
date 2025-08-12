@@ -203,18 +203,19 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
       const fullUrls = matches || [];
       
       // Check if text starts with URL
-      if (text.match(/^https?:\/\//)) {
+      if (text.match(/^https?:\/\//) && fullUrls.length > 0) {
         // If it's just a URL, show domain name only
+        const fullUrl = fullUrls[0];
         try {
-          const url = new URL(fullUrls[0]);
+          const url = new URL(fullUrl);
           return (
             <a
-              href={fullUrls[0]}
+              href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 underline"
               onClick={(e) => e.stopPropagation()}
-              title={fullUrls[0]}
+              title={fullUrl}
             >
               {url.hostname}...
             </a>
@@ -222,11 +223,12 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
         } catch {
           return (
             <a
-              href={fullUrls[0]}
+              href={fullUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800 underline"
               onClick={(e) => e.stopPropagation()}
+              title={fullUrl}
             >
               {text.substring(0, 30)}...
             </a>
