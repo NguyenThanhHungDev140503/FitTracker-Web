@@ -40,6 +40,9 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState(exercise.name);
+  const [editSets, setEditSets] = useState(exercise.sets);
+  const [editReps, setEditReps] = useState(exercise.reps);
+  const [editRestDuration, setEditRestDuration] = useState(exercise.restDuration);
 
   // Update exercise mutation
   const updateExerciseMutation = useMutation({
@@ -208,6 +211,9 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 setEditName(exercise.name);
+                setEditSets(exercise.sets);
+                setEditReps(exercise.reps);
+                setEditRestDuration(exercise.restDuration);
                 setIsEditDialogOpen(true);
               }}
             >
@@ -358,6 +364,39 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
                 placeholder="Nhập tên bài tập"
               />
             </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label htmlFor="exercise-sets">Số hiệp</Label>
+                <Input
+                  id="exercise-sets"
+                  type="number"
+                  min="1"
+                  value={editSets}
+                  onChange={(e) => setEditSets(Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="exercise-reps">Số lần</Label>
+                <Input
+                  id="exercise-reps"
+                  type="number"
+                  min="1"
+                  value={editReps}
+                  onChange={(e) => setEditReps(Number(e.target.value))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="exercise-rest">Nghỉ (giây)</Label>
+                <Input
+                  id="exercise-rest"
+                  type="number"
+                  min="0"
+                  step="5"
+                  value={editRestDuration}
+                  onChange={(e) => setEditRestDuration(Number(e.target.value))}
+                />
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
@@ -365,8 +404,13 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
             </Button>
             <Button
               onClick={() => {
-                if (editName.trim()) {
-                  updateExerciseMutation.mutate({ name: editName });
+                if (editName.trim() && editSets > 0 && editReps > 0 && editRestDuration >= 0) {
+                  updateExerciseMutation.mutate({ 
+                    name: editName,
+                    sets: editSets,
+                    reps: editReps,
+                    restDuration: editRestDuration
+                  });
                   setIsEditDialogOpen(false);
                 }
               }}
