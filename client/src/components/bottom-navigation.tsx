@@ -14,7 +14,7 @@ export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationPro
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 z-50">
+    <nav className="fixed bottom-0 left-0 w-screen bg-white border-t border-gray-200 z-50">
       <div className="flex items-center justify-around py-2">
         {tabs.map(({ id, label, icon: Icon }) => (
           <button

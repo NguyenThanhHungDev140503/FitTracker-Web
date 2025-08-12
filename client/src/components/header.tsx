@@ -7,7 +7,7 @@ export function Header() {
   const { user } = useAuth() as { user: User | undefined };
 
   return (
-    <header className="w-full bg-primary text-white p-4 sticky top-0 z-50">
+    <header className="w-screen bg-primary text-white px-4 py-4 sticky top-0 z-50">
       <div className="w-full flex items-center justify-between">
         <h1 className="text-xl font-bold">FitTracker</h1>
         <div className="flex items-center space-x-3">
