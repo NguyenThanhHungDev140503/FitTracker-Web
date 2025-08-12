@@ -156,6 +156,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all exercises for a user across all workouts
+  app.get("/api/exercises", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const exercises = await storage.getAllExercisesForUser(userId);
+      res.json(exercises);
+    } catch (error) {
+      console.error("Error fetching all exercises:", error);
+      res.status(500).json({ message: "Failed to fetch exercises" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

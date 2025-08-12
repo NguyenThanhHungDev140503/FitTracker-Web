@@ -57,6 +57,7 @@ export const exercises = pgTable("exercises", {
   workoutId: varchar("workout_id").notNull().references(() => workouts.id, { onDelete: "cascade" }),
   name: varchar("name").notNull(),
   description: text("description"),
+  type: varchar("type").default("strength"), // strength, cardio, core, etc.
   sets: integer("sets").notNull().default(1),
   reps: integer("reps").notNull().default(1),
   currentCount: integer("current_count").notNull().default(0),

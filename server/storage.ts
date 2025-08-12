@@ -11,7 +11,7 @@ import {
   type UpdateExercise,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, or, inArray } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -34,6 +34,7 @@ export interface IStorage {
   createExercise(exercise: InsertExercise): Promise<Exercise>;
   updateExercise(exerciseId: string, updates: UpdateExercise): Promise<Exercise>;
   deleteExercise(exerciseId: string): Promise<void>;
+  getAllExercisesForUser(userId: string): Promise<Exercise[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -138,6 +139,27 @@ export class DatabaseStorage implements IStorage {
 
   async deleteExercise(exerciseId: string): Promise<void> {
     await db.delete(exercises).where(eq(exercises.id, exerciseId));
+  }
+
+  async getAllExercisesForUser(userId: string): Promise<Exercise[]> {
+    // First get all workouts for the user
+    const userWorkouts = await db
+      .select({ id: workouts.id })
+      .from(workouts)
+      .where(eq(workouts.userId, userId));
+    
+    if (userWorkouts.length === 0) {
+      return [];
+    }
+    
+    const workoutIds = userWorkouts.map(w => w.id);
+    
+    // Get all exercises from those workouts
+    return await db
+      .select()
+      .from(exercises)
+      .where(inArray(exercises.workoutId, workoutIds))
+      .orderBy(desc(exercises.createdAt));
   }
 }
 

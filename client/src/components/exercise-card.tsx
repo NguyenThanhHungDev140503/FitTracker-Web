@@ -203,7 +203,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
       const fullUrls = matches || [];
       
       // Check if text starts with URL
-      if (text.match(/^https?:\/\//) && fullUrls.length > 0) {
+      if (text.match(/^https?:\/\//) && fullUrls.length > 0 && fullUrls[0]) {
         // If it's just a URL, show domain name only
         const fullUrl = fullUrls[0];
         try {

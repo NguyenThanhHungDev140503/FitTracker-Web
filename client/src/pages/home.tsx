@@ -15,12 +15,14 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { useLocation } from "wouter";
 import type { Workout, User } from "@shared/schema";
 
 export default function Home() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -124,6 +126,15 @@ export default function Home() {
     setSelectedWorkout(null);
   };
 
+  const handleTabChange = (tab: string) => {
+    if (tab === 'workouts') {
+      // Navigate to exercises page
+      setLocation('/exercises');
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -208,7 +219,7 @@ export default function Home() {
         </div>
       )}
 
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Add Workout Modal */}
       <Dialog open={isAddWorkoutOpen} onOpenChange={setIsAddWorkoutOpen}>
