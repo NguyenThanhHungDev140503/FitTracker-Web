@@ -51,9 +51,8 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
   const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
   return (
-    <div className="w-screen bg-gray-50 min-h-screen pb-24" style={{ width: '100vw', margin: 0, padding: 0 }}>
-      <div className="px-4 pt-4">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-gray-50 min-h-screen pb-24">
+      <div className="flex items-center justify-between px-4 py-4">
         <h2 className="text-2xl font-bold text-dark">
           {format(currentDate, 'MMMM yyyy', { locale: vi })}
         </h2>
@@ -67,8 +66,8 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Calendar Grid - Full Width */}
+      <div className="bg-white shadow-sm border-y border-gray-100 overflow-hidden">
         {/* Days Header */}
         <div className="grid grid-cols-7 bg-gray-50">
           {dayNames.map(day => (
@@ -131,7 +130,7 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
       </Button>
 
       {/* Workout Legend */}
-      <div className="mt-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <div className="mx-4 mt-6 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
         <h3 className="font-semibold text-dark mb-3">Loại bài tập</h3>
         <div className="space-y-2">
           <div className="flex items-center space-x-3">
@@ -147,7 +146,6 @@ export function CalendarView({ onDateSelect, onAddWorkout }: CalendarViewProps) 
             <span className="text-sm text-gray-600">Chân/Mông</span>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );

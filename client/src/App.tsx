@@ -29,14 +29,12 @@ function Router() {
 
 function App() {
   return (
-    <div style={{ width: '100vw', margin: 0, padding: 0, maxWidth: '100vw', overflow: 'hidden' }}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Router />
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 
