@@ -186,6 +186,33 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
 
   const progressPercentage = (completedSets / exercise.sets) * 100;
 
+  // Function to detect and format URLs in text
+  const formatDescription = (text: string | null) => {
+    if (!text) return null;
+    
+    // URL detection regex
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
     <Card className={`border-0 shadow-sm ${exercise.completed ? 'opacity-60' : ''}`}>
       <CardHeader 
@@ -204,7 +231,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
               )}
             </div>
             {exercise.description && (
-              <p className="text-sm text-gray-600 mt-1">{exercise.description}</p>
+              <p className="text-sm text-gray-600 mt-1">{formatDescription(exercise.description)}</p>
             )}
             <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
               <span className="flex items-center">
