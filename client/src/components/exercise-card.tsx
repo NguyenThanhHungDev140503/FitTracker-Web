@@ -37,6 +37,13 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [isFinalRest, setIsFinalRest] = useState(false); // Track if this is the final rest period
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Exercise timer states for endurance exercises
+  const [exerciseTimerDuration, setExerciseTimerDuration] = useState(30); // Default 30 seconds
+  const [exerciseTimeLeft, setExerciseTimeLeft] = useState(30);
+  const [isExerciseTimerRunning, setIsExerciseTimerRunning] = useState(false);
+  const exerciseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -150,6 +157,61 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
       }
     };
   }, [isTimerRunning, restTimeLeft, exercise.restDuration, isFinalRest, exercise.name]);
+
+  // Exercise timer effect for endurance exercises
+  useEffect(() => {
+    if (isExerciseTimerRunning && exerciseTimeLeft > 0) {
+      exerciseTimerRef.current = setInterval(() => {
+        setExerciseTimeLeft((prev) => {
+          if (prev <= 1) {
+            setIsExerciseTimerRunning(false);
+            
+            // Play notification sound
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            
+            // Create four beeps for exercise completion
+            for (let i = 0; i < 4; i++) {
+              const oscillator = audioContext.createOscillator();
+              const gainNode = audioContext.createGain();
+              
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+              
+              oscillator.frequency.value = 1000; // Higher frequency for exercise completion
+              oscillator.type = 'sine';
+              
+              // Fade in and out
+              gainNode.gain.setValueAtTime(0, audioContext.currentTime + (i * 0.25));
+              gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + (i * 0.25) + 0.01);
+              gainNode.gain.linearRampToValueAtTime(0.4, audioContext.currentTime + (i * 0.25) + 0.12);
+              gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + (i * 0.25) + 0.15);
+              
+              oscillator.start(audioContext.currentTime + (i * 0.25));
+              oscillator.stop(audioContext.currentTime + (i * 0.25) + 0.15);
+            }
+            
+            toast({
+              title: "🎯 Hoàn thành bài tập!",
+              description: "Thời gian bài tập đã kết thúc",
+            });
+            
+            return exerciseTimerDuration;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (exerciseTimerRef.current) {
+        clearInterval(exerciseTimerRef.current);
+      }
+    }
+
+    return () => {
+      if (exerciseTimerRef.current) {
+        clearInterval(exerciseTimerRef.current);
+      }
+    };
+  }, [isExerciseTimerRunning, exerciseTimeLeft, exerciseTimerDuration]);
 
   const handleStartRest = () => {
     setIsResting(true);
@@ -432,6 +494,89 @@ export function ExerciseCard({ exercise, workoutCompleted = false, onUpdate }: E
               </div>
             </div>
           )}
+
+          {/* Exercise Timer for Endurance Exercises */}
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="text-center mb-3">
+              <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                ⏱️ Bộ đếm thời gian bài tập (Plank, Nhảy dây...)
+              </h4>
+              <div className="text-3xl font-bold text-green-600">
+                {formatTime(exerciseTimeLeft)}
+              </div>
+              {!isExerciseTimerRunning && (
+                <div className="flex items-center justify-center mt-2 space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const newDuration = Math.max(10, exerciseTimerDuration - 10);
+                      setExerciseTimerDuration(newDuration);
+                      setExerciseTimeLeft(newDuration);
+                    }}
+                  >
+                    -10s
+                  </Button>
+                  <Input
+                    type="number"
+                    min="10"
+                    max="300"
+                    value={exerciseTimerDuration}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 30;
+                      setExerciseTimerDuration(value);
+                      setExerciseTimeLeft(value);
+                    }}
+                    className="w-20 text-center"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const newDuration = Math.min(300, exerciseTimerDuration + 10);
+                      setExerciseTimerDuration(newDuration);
+                      setExerciseTimeLeft(newDuration);
+                    }}
+                  >
+                    +10s
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-center space-x-2">
+              {!isExerciseTimerRunning ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExerciseTimerRunning(true)}
+                  disabled={isResting}
+                >
+                  <Play className="w-4 h-4 mr-1" />
+                  Bắt đầu
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsExerciseTimerRunning(false)}
+                >
+                  <Pause className="w-4 h-4 mr-1" />
+                  Tạm dừng
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsExerciseTimerRunning(false);
+                  setExerciseTimeLeft(exerciseTimerDuration);
+                }}
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Đặt lại
+              </Button>
+            </div>
+          </div>
 
           {/* Complete Exercise Button */}
           {!isResting && completedSets === exercise.sets && (
