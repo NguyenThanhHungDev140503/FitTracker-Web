@@ -264,7 +264,7 @@ export function ExerciseCard({ exercise, onUpdate }: ExerciseCardProps) {
   };
 
   return (
-    <Card className={`border-0 shadow-sm ${exercise.completed ? 'opacity-60' : ''}`}>
+    <Card className="border-0 shadow-sm">
       <CardHeader 
         className="pb-3 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
