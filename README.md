@@ -61,7 +61,7 @@ FitTracker/
 
 1. **Clone repository**
    ```bash
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/NguyenThanhHungDev140503/FitTracker-Web.git)
    cd FitTracker
    ```
 
